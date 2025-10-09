@@ -10,38 +10,43 @@ class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(product.nama)),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Image.asset(product.gambarProduk, height: 300, fit: BoxFit.contain),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(product.nama, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  Text('Rp${product.harga}', style: const TextStyle(fontSize: 20, color: Colors.deepPurple)),
-                  const SizedBox(height: 10),
-                  Text(product.deskripsi, style: const TextStyle(fontSize: 16)),
-                ],
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, foregroundColor: Colors.black),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(child: Image.asset(product.gambarProduk, height: 250)),
+                    const SizedBox(height: 24),
+                    Text(product.nama, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text('Rp${product.harga}', style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 16),
+                    Text(product.deskripsi, style: TextStyle(fontSize: 16, color: Colors.grey[700], height: 1.5)),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(15)),
-          onPressed: () {
-            Provider.of<CartProvider>(context, listen: false).addItem(product);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${product.nama} ditambahkan ke keranjang!'), duration: const Duration(seconds: 1)),
-            );
-          },
-          child: const Text('Add to Cart', style: TextStyle(fontSize: 18)),
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+              ),
+              onPressed: () {
+                Provider.of<CartProvider>(context, listen: false).addItem(product);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${product.nama} ditambahkan'), duration: const Duration(seconds: 1)));
+              },
+              child: const Text('Add to Cart', style: TextStyle(fontSize: 18)),
+            ),
+          ),
+        ],
       ),
     );
   }

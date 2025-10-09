@@ -4,6 +4,7 @@ class Product {
   final int harga;
   final String gambarProduk;
   final String deskripsi;
+  final String kategori; // Tambahkan kategori untuk filtering
 
   Product({
     required this.id,
@@ -11,5 +12,6 @@ class Product {
     required this.harga,
     required this.gambarProduk,
     required this.deskripsi,
+    this.kategori = 'Lainnya', // Default kategori
   });
 }
