@@ -75,6 +75,41 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // --- Fungsi Tambah ke Keranjang (Aman dari async gap) ---
+  Future<void> _tambahKeKeranjang(Product product) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi'),
+          content: Text('Tambahkan "${product.nama}" ke keranjang?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) return;
+
+    if (confirm == true) {
+      Provider.of<CartProvider>(context, listen: false).addItem(product);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${product.nama} berhasil ditambahkan!'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final formatCurrency = NumberFormat.currency(
@@ -87,10 +122,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final filteredProducts = _selectedCategory == 'All'
         ? _products
         : _products
-            .where((p) =>
-                p.kategori.toLowerCase() ==
-                _selectedCategory.toLowerCase())
-            .toList();
+              .where(
+                (p) =>
+                    p.kategori.toLowerCase() == _selectedCategory.toLowerCase(),
+              )
+              .toList();
 
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
@@ -103,15 +139,13 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: (index) {
           if (index == 1) {
             Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (ctx) => const PencarianScreen(),
-              ),
+              MaterialPageRoute(builder: (ctx) => const PencarianScreen()),
             );
           }
           if (index == 2) {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (ctx) => const CartScreen()),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (ctx) => const CartScreen()));
           }
         },
         items: const [
@@ -136,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Search bar
+                // --- SEARCH BAR ---
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
@@ -174,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       CategoryItem(
                         icon: '📦',
-                        label: 'Semua',
+                        label: 'All',
                         isActive: _selectedCategory == 'All',
                         onTap: () => _selectCategory('All'),
                       ),
@@ -209,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // --- PRODUK (SESUAI KATEGORI) ---
+                // --- PRODUK SESUAI KATEGORI ---
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -264,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
 
-                          // Tombol tambah ke keranjang
+                          // --- Tombol Tambah ke Keranjang ---
                           Positioned(
                             bottom: 8,
                             right: 8,
@@ -274,46 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 foregroundColor: Colors.white,
                               ),
                               icon: const Icon(Icons.add),
-                              onPressed: () async {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text('Konfirmasi'),
-                                      content: Text(
-                                        'Tambahkan "${product.nama}" ke keranjang?',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: const Text('Batal'),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                          child: const Text('Ya'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-
-                                if (confirm == true) {
-                                  Provider.of<CartProvider>(
-                                    context,
-                                    listen: false,
-                                  ).addItem(product);
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content:
-                                          Text('${product.nama} ditambahkan'),
-                                      duration: const Duration(seconds: 1),
-                                    ),
-                                  );
-                                }
-                              },
+                              onPressed: () => _tambahKeKeranjang(product),
                             ),
                           ),
                         ],
@@ -330,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Widget kategori
+// --- Widget kategori ---
 class CategoryItem extends StatelessWidget {
   final String icon;
   final String label;

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import 'detail_screen.dart';
-import 'cart_screen.dart';
 
 class PencarianScreen extends StatefulWidget {
   const PencarianScreen({super.key});
@@ -72,8 +71,9 @@ class _PencarianScreenState extends State<PencarianScreen> {
   @override
   void initState() {
     super.initState();
+    // Otomatis fokus ke kolom pencarian saat halaman dibuka
     Future.delayed(const Duration(milliseconds: 300), () {
-      _searchFocusNode.requestFocus();
+      if (mounted) _searchFocusNode.requestFocus();
     });
   }
 
@@ -101,17 +101,27 @@ class _PencarianScreenState extends State<PencarianScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text('Pencarian Barang'),
+          title: const Text(
+            'Pencarian Barang',
+            style: TextStyle(color: Colors.black),
+          ),
+          centerTitle: true,
           backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black),
         ),
         body: SafeArea(
           child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // --- Kolom Pencarian ---
                   TextField(
                     focusNode: _searchFocusNode,
                     onChanged: (value) => setState(() => _searchQuery = value),
@@ -124,25 +134,32 @@ class _PencarianScreenState extends State<PencarianScreen> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
                       ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 16,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
+
                   const Text(
                     'Hasil Pencarian',
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
+
+                  // --- Grid Produk ---
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _filteredProducts.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.7,
-                    ),
-                    itemCount: _filteredProducts.length,
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.7,
+                        ),
                     itemBuilder: (context, index) {
                       final product = _filteredProducts[index];
                       return GestureDetector(
@@ -156,23 +173,36 @@ class _PencarianScreenState extends State<PencarianScreen> {
                         },
                         child: Stack(
                           children: [
+                            // --- Kartu Produk ---
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: Colors.grey[100],
                                 borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: Center(
-                                      child: Image.asset(product.gambarProduk),
+                                      child: Image.asset(
+                                        product.gambarProduk,
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     product.nama,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -190,26 +220,28 @@ class _PencarianScreenState extends State<PencarianScreen> {
                               ),
                             ),
 
-                            // Validasi sebelum tambah barang + dialog konfirmasi
+                            // --- Tombol Tambah ke Keranjang ---
                             Positioned(
                               bottom: 8,
                               right: 8,
-                              child: IconButton(
+                              child: IconButton.filled(
                                 style: IconButton.styleFrom(
                                   backgroundColor: Colors.deepPurple,
                                   foregroundColor: Colors.white,
                                 ),
                                 icon: const Icon(Icons.add),
                                 onPressed: () async {
-                                  // Cek validasi dulu
                                   if (product.nama.isEmpty ||
                                       product.harga == 0) {
-                                    showDialog(
+                                    // Produk tidak valid
+                                    if (!context.mounted) return;
+                                    await showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
                                         title: const Text('Produk Tidak Valid'),
                                         content: const Text(
-                                            'Produk ini tidak dapat ditambahkan ke keranjang.'),
+                                          'Produk ini tidak dapat ditambahkan ke keranjang.',
+                                        ),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
@@ -222,14 +254,16 @@ class _PencarianScreenState extends State<PencarianScreen> {
                                     return;
                                   }
 
-                                  // Dialog konfirmasi sebelum tambah
+                                  // Konfirmasi tambah produk
+                                  if (!context.mounted) return;
                                   final confirm = await showDialog<bool>(
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
                                         title: const Text('Konfirmasi'),
                                         content: Text(
-                                            'Tambahkan "${product.nama}" ke keranjang?'),
+                                          'Tambahkan "${product.nama}" ke keranjang?',
+                                        ),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
@@ -246,7 +280,7 @@ class _PencarianScreenState extends State<PencarianScreen> {
                                     },
                                   );
 
-                                  if (confirm == true) {
+                                  if (confirm == true && context.mounted) {
                                     Provider.of<CartProvider>(
                                       context,
                                       listen: false,
@@ -255,9 +289,9 @@ class _PencarianScreenState extends State<PencarianScreen> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                            '${product.nama} ditambahkan'),
-                                        duration:
-                                            const Duration(seconds: 1),
+                                          '${product.nama} berhasil ditambahkan!',
+                                        ),
+                                        duration: const Duration(seconds: 1),
                                       ),
                                     );
                                   }
