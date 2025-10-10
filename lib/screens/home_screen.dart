@@ -83,6 +83,15 @@ class _HomeScreenState extends State<HomeScreen> {
       decimalDigits: 0,
     );
 
+    // --- FILTER PRODUK BERDASARKAN KATEGORI ---
+    final filteredProducts = _selectedCategory == 'All'
+        ? _products
+        : _products
+            .where((p) =>
+                p.kategori.toLowerCase() ==
+                _selectedCategory.toLowerCase())
+            .toList();
+
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
@@ -127,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Tampilan search bar
+                // Search bar
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
@@ -200,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // --- PRODUK ---
+                // --- PRODUK (SESUAI KATEGORI) ---
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -210,9 +219,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSpacing: 16,
                     childAspectRatio: 0.7,
                   ),
-                  itemCount: _products.length,
+                  itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
-                    final product = _products[index];
+                    final product = filteredProducts[index];
                     return GestureDetector(
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
@@ -255,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
 
-                          // Validasi sebelum tambah barang
+                          // Tombol tambah ke keranjang
                           Positioned(
                             bottom: 8,
                             right: 8,
