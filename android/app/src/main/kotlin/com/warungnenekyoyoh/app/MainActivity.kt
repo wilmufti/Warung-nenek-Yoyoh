@@ -1,4 +1,4 @@
-package com.example.warungnenekyoyoh
+package com.warungnenekyoyoh.app
 
 import io.flutter.embedding.android.FlutterActivity
 
