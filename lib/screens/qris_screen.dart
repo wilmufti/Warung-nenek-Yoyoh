@@ -23,7 +23,9 @@ class QrisScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
                 onPressed: () {
                   Provider.of<CartProvider>(context, listen: false).clear();
                   Navigator.of(context).pushAndRemoveUntil(
@@ -31,7 +33,10 @@ class QrisScreen extends StatelessWidget {
                     (route) => false,
                   );
                 },
-                child: const Text('Unduh QR Code', style: TextStyle(fontSize: 18)),
+                child: const Text(
+                  'Unduh QR Code',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
             ],
           ),

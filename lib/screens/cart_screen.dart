@@ -10,7 +10,11 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
-    final formatCurrency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+    final formatCurrency = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text('${cart.itemCount} Items In Cart')),
@@ -26,7 +30,10 @@ class CartScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ListTile(
-                      leading: Image.asset(item.product.gambarProduk, width: 50),
+                      leading: Image.asset(
+                        item.product.gambarProduk,
+                        width: 50,
+                      ),
                       title: Text(item.product.nama),
                       subtitle: Text(formatCurrency.format(item.product.harga)),
                       trailing: Row(
@@ -34,12 +41,21 @@ class CartScreen extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.remove),
-                            onPressed: () => Provider.of<CartProvider>(context, listen: false).removeSingleItem(item.product.id),
+                            onPressed: () => Provider.of<CartProvider>(
+                              context,
+                              listen: false,
+                            ).removeSingleItem(item.product.id),
                           ),
-                          Text('${item.quantity}', style: const TextStyle(fontSize: 18)),
+                          Text(
+                            '${item.quantity}',
+                            style: const TextStyle(fontSize: 18),
+                          ),
                           IconButton(
                             icon: const Icon(Icons.add),
-                            onPressed: () => Provider.of<CartProvider>(context, listen: false).addItem(item.product),
+                            onPressed: () => Provider.of<CartProvider>(
+                              context,
+                              listen: false,
+                            ).addItem(item.product),
                           ),
                         ],
                       ),
@@ -51,19 +67,41 @@ class CartScreen extends StatelessWidget {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [BoxShadow(color: Colors.black.withAlpha(25), spreadRadius: 0, blurRadius: 10)]),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(25),
+              spreadRadius: 0,
+              blurRadius: 10,
+            ),
+          ],
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              const Text('Total:', style: TextStyle(fontSize: 20)),
-              Text(formatCurrency.format(cart.totalAmount), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Total:', style: TextStyle(fontSize: 20)),
+                Text(
+                  formatCurrency.format(cart.totalAmount),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
-              onPressed: cart.items.isEmpty ? null : () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const QrisScreen())),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              onPressed: cart.items.isEmpty
+                  ? null
+                  : () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (ctx) => const QrisScreen()),
+                    ),
               child: const Text('Checkout', style: TextStyle(fontSize: 18)),
             ),
           ],

@@ -10,7 +10,11 @@ class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, foregroundColor: Colors.black),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.black,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -20,30 +24,124 @@ class DetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(child: Image.asset(product.gambarProduk, height: 250)),
+                    // --- Gambar Produk ---
+                    Center(
+                      child: Image.asset(
+                        product.gambarProduk,
+                        height: 250,
+                      ),
+                    ),
                     const SizedBox(height: 24),
-                    Text(product.nama, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+
+                    // --- Nama Produk ---
+                    Text(
+                      product.nama,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('Rp${product.harga}', style: const TextStyle(fontSize: 22, color: Colors.deepPurple, fontWeight: FontWeight.w600)),
+
+                    // --- Harga Produk ---
+                    Text(
+                      'Rp${product.harga}',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 16),
-                    Text(product.deskripsi, style: TextStyle(fontSize: 16, color: Colors.grey[700], height: 1.5)),
+
+                    // --- Deskripsi Produk ---
+                    Text(
+                      product.deskripsi,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[700],
+                        height: 1.5,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
+
+          // --- Tombol Tambah ke Keranjang ---
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              onPressed: () {
-                Provider.of<CartProvider>(context, listen: false).addItem(product);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${product.nama} ditambahkan'), duration: const Duration(seconds: 1)));
+              onPressed: () async {
+                // Validasi data produk
+                if (product.nama.isEmpty || product.harga == 0) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Produk Tidak Valid'),
+                      content: const Text(
+                        'Produk ini tidak dapat ditambahkan ke keranjang.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
+
+                // Tampilkan dialog konfirmasi
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Konfirmasi'),
+                      content: Text(
+                        'Tambahkan "${product.nama}" ke keranjang?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Batal'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Ya'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                
+                if (confirm == true) {
+                  Provider.of<CartProvider>(
+                    context,
+                    listen: false,
+                  ).addItem(product);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          Text('${product.nama} berhasil ditambahkan!'),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                }
               },
-              child: const Text('Add to Cart', style: TextStyle(fontSize: 18)),
+              child: const Text(
+                'Add to Cart',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ),
         ],
